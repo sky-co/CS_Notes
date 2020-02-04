@@ -2,8 +2,8 @@
 * [1. 把数组中的 0 移到末尾](#1-把数组中的-0-移到末尾)
 * [2. 改变矩阵维度](#2-改变矩阵维度)
 * [3. 找出数组中最长的连续 1](#3-找出数组中最长的连续-1)
-<!-- * [4. 有序矩阵查找](#4-有序矩阵查找)
-* [5. 有序矩阵的 Kth Element](#5-有序矩阵的-kth-element)
+ * [4. 有序矩阵查找](#4-有序矩阵查找)
+<!--* [5. 有序矩阵的 Kth Element](#5-有序矩阵的-kth-element)
 * [6. 一个数组元素在 [1, n] 之间，其中一个数被替换为另一个数，找出重复的数和丢失的数](#6-一个数组元素在-[1,-n]-之间，其中一个数被替换为另一个数，找出重复的数和丢失的数)
 * [7. 找出数组中重复的数，数组值在 [1, n] 之间](#7-找出数组中重复的数，数组值在-[1,-n]-之间)
 * [8. 数组相邻差值的个数](#8-数组相邻差值的个数)
@@ -292,3 +292,73 @@ int findMaxConsecutiveOnes(vector<int>& nums) {
 **分析：**
 
 1. 解法1简化版
+
+# 4. 有序矩阵查找
+
+240\. Search a 2D Matrix II (Medium)
+
+[LeetCode](https://leetcode.com/problems/search-a-2d-matrix-ii/description/)
+
+```html
+[
+   [ 1,  5,  9],
+   [10, 11, 13],
+   [12, 13, 15]
+]
+```
+
+## 解法 1
+
+```c++
+bool searchMatrix(vector<vector<int>>& matrix, int target) {
+  if (matrix.empty() || matrix[0].empty())
+      return false;
+  
+  int m = matrix.size();
+  int n = matrix[0].size();
+  for (int colIdx = n - 1; colIdx >=0; colIdx--) {
+      for (int rowIdx = 0; rowIdx < m; rowIdx++) {
+          if (matrix[rowIdx][colIdx] > target) {
+              break;
+          }
+          else if (matrix[rowIdx][colIdx] < target) {
+              continue;
+          }
+          else {
+              return true;
+          }
+      }
+  }
+  return false;
+}
+```
+
+**分析：**
+
+1. 矩阵有效性检查
+2. 由于矩阵从左到右和从上到下递增的特性，遍历数组的起始位置从数组右上角开始，从右往左，从上到下的搜索target
+
+## 解法 2
+
+```c++
+bool searchMatrix(vector<vector<int>>& matrix, int target) {
+  if (matrix.empty() || matrix[0].empty())
+      return false;
+  
+  int m = matrix.size();
+  int n = matrix[0].size();
+  int rowIdx{0};
+  int colIdx{n-1};
+  while (rowIdx < m && colIdx >= 0) {
+      if (matrix[rowIdx][colIdx] == target) return true;
+      else if (matrix[rowIdx][colIdx] > target) colIdx--;
+      else rowIdx++;
+  }
+  return false;
+}
+```
+
+**分析：**
+
+1. 解法1简化版本
+2. 剪枝：当前位置matrix[rowIdx][colIdx] > target时，不必从rowIdx=0开始往下搜索，直接从matrix[rowIdx][colIdx--]开始找
