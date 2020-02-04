@@ -1,7 +1,7 @@
 <!-- GFM-TOC -->
 * [1. 把数组中的 0 移到末尾](#1-把数组中的-0-移到末尾)
-<!-- * [2. 改变矩阵维度](#2-改变矩阵维度)
-* [3. 找出数组中最长的连续 1](#3-找出数组中最长的连续-1)
+* [2. 改变矩阵维度](#2-改变矩阵维度)
+<!-- * [3. 找出数组中最长的连续 1](#3-找出数组中最长的连续-1)
 * [4. 有序矩阵查找](#4-有序矩阵查找)
 * [5. 有序矩阵的 Kth Element](#5-有序矩阵的-kth-element)
 * [6. 一个数组元素在 [1, n] 之间，其中一个数被替换为另一个数，找出重复的数和丢失的数](#6-一个数组元素在-[1,-n]-之间，其中一个数被替换为另一个数，找出重复的数和丢失的数)
@@ -79,3 +79,129 @@ void moveZeroes(vector<int>& nums) {
 **分析：**
 1. 使用一个变量len表示非0数字的长度
 2. 遍历数组，当遇上非自己元素的非0数字时候，交换len和游标i所对应的数字。一次遍历完成移动和填充0操作
+
+# 2. 改变矩阵维度
+
+566\. Reshape the Matrix (Easy)
+
+[Leetcode](https://leetcode.com/problems/reshape-the-matrix/description/) 
+
+```html
+Input:
+nums =
+[[1,2],
+ [3,4]]
+r = 1, c = 4
+
+Output:
+[[1,2,3,4]]
+
+Explanation:
+The row-traversing of nums is [1,2,3,4]. The new reshaped matrix is a 1 * 4 matrix, fill it row by row by using the previous list.
+```
+
+## 解法1：
+```c++
+vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c) {
+  int m = nums.size(), n = nums[0].size();
+  if (m * n != r * c) {
+      return nums;
+  }
+
+  // Use extra space to convert orginal vector into 1-dimension
+  vector<int> vecTmp;
+  for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+          vecTmp.push_back(nums[i][j]);
+      }
+  }
+  
+  // In the end, index == r * c
+  int index = 0;
+  vector<vector<int>> res(r, vector<int>(c, 0));
+  for (int i = 0; i < r; i++) {
+      for (int j = 0; j < c; j++) {
+          res[i][j] = vecTmp[index++];
+      }
+  }
+
+  return res;
+}
+```
+**分析：**
+1. 遍历数组nums，存入临时一维数组vecTmp
+2. 挨个取出临时一维数组vecTmp的元素填入数组v
+
+## 解法2：
+```c++
+vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c) {
+  int m = nums.size(), n = nums[0].size();
+  if (m * n != r * c) {
+      return nums;
+  }
+
+  int rowIdx{0};
+  int colIdx{0};
+  vector<vector <int> > v(r ,vector<int>(c, 0));
+  for (int i = 0; i < r; i++) {
+      for (int j = 0; j < c;) {
+          if (colIdx != n) {
+              v[i][j++] = nums[rowIdx][colIdx++];
+          }
+          else {
+              rowIdx++;
+              colIdx = 0;
+          }
+      }
+  }
+  return v;
+}
+```
+**分析：**
+1. 如果数组的元素个数小于r和c的乘积，说明r和c不符合，返回原数组
+2. 预先分配一个r*c大小的数组v，填充0
+3. 遍历数组nums，挨个取出元素填入数组v（通过移动column的索引，按行遍历nums）
+
+## 解法3：
+```c++
+vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c) {
+  int m = nums.size(), n = nums[0].size();
+  if (m * n != r * c) {
+      return nums;
+  }
+
+  int idx{0};
+  vector<vector <int> > v(r ,vector<int>(c, 0));
+  for (int i = 0; i < r; i++) {
+      for (int j = 0; j < c; j++) {
+          v[i][j] = nums[idx / n][idx % n];
+          idx++;
+      }
+  }
+  return v;
+}
+```
+**分析：**
+1. 遍历数组v，挨个取出数组nums的元素填入数组v（通过idx将数组nums转化为一维数组，行=idx/n, 列=idx%n）
+
+## 解法4：
+```c++
+vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c) {
+  int m = nums.size(), n = nums[0].size();
+  if (m * n != r * c) {
+      return nums;
+  }
+
+  vector<vector<int>> res(r, vector<int>(c, 0));
+  for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+          int k = i * n + j;
+          res[k / c][k % c] = nums[i][j];
+      }
+  }
+
+  return res;
+}
+```
+**分析：**
+1. 遍历数组nums，挨个取出元素填入数组v（通过k将数组res转化为一维数组，行=k/c, 列=k%c）
