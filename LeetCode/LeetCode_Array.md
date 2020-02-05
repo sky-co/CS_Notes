@@ -2,9 +2,9 @@
 * [1. 把数组中的 0 移到末尾](#1-把数组中的-0-移到末尾)
 * [2. 改变矩阵维度](#2-改变矩阵维度)
 * [3. 找出数组中最长的连续 1](#3-找出数组中最长的连续-1)
- * [4. 有序矩阵查找](#4-有序矩阵查找)
-<!--* [5. 有序矩阵的 Kth Element](#5-有序矩阵的-kth-element)
-* [6. 一个数组元素在 [1, n] 之间，其中一个数被替换为另一个数，找出重复的数和丢失的数](#6-一个数组元素在-[1,-n]-之间，其中一个数被替换为另一个数，找出重复的数和丢失的数)
+* [4. 有序矩阵查找](#4-有序矩阵查找)
+* [5. 有序矩阵的 Kth Element](#5-有序矩阵的-kth-element)
+<!--* [6. 一个数组元素在 [1, n] 之间，其中一个数被替换为另一个数，找出重复的数和丢失的数](#6-一个数组元素在-[1,-n]-之间，其中一个数被替换为另一个数，找出重复的数和丢失的数)
 * [7. 找出数组中重复的数，数组值在 [1, n] 之间](#7-找出数组中重复的数，数组值在-[1,-n]-之间)
 * [8. 数组相邻差值的个数](#8-数组相邻差值的个数)
 * [9. 数组的度](#9-数组的度)
@@ -362,3 +362,114 @@ bool searchMatrix(vector<vector<int>>& matrix, int target) {
 
 1. 解法1简化版本
 2. 剪枝：当前位置matrix[rowIdx][colIdx] > target时，不必从rowIdx=0开始往下搜索，直接从matrix[rowIdx][colIdx--]开始找
+
+# 5. 有序矩阵的 Kth Element
+
+378\. Kth Smallest Element in a Sorted Matrix (Medium)
+
+[LeetCode](https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/description/)
+
+```html
+matrix = [
+  [ 1,  5,  9],
+  [10, 11, 13],
+  [12, 13, 15]
+],
+k = 8,
+
+return 13.
+```
+
+## 解法 1
+
+```c++
+int kthSmallest(vector<vector<int>>& matrix, int k) {
+  vector<int> v;
+  for (auto arr:matrix) {
+      for (auto num:arr) {
+          v.emplace_back(num);
+      }
+  }
+  sort(v.begin(), v.end());
+  return v[k - 1];
+}
+```
+
+**分析：**
+
+1. 对于一个有序的递增数组，只需要从头开始找到第K小的数字就可以了（不考虑额外空间消耗的情况下）
+
+## 解法 2
+
+```c++
+int kthSmallest(vector<vector<int>>& matrix, int k) {
+  int n = matrix.size(); 
+  int lo = matrix[0][0];
+  int hi = matrix[n-1][n-1];
+  int mid = 0;
+
+  int num = 0;
+  while (lo < hi) {
+      mid = lo + (hi - lo) / 2;
+      int cnt = 0;
+      num++;
+      cout << "num: " << num;
+      for (int i = 0; i < n; i++) {
+          int pos = upper_bound(matrix[i].begin(), matrix[i].end(), mid) - matrix[i].begin();
+          cnt += pos;
+          cout << ", pos: " << pos;
+      }
+      cout << endl;
+      if (cnt < k) {
+          lo = mid + 1;
+      }
+      else {
+          hi = mid - 1;
+      }
+  }
+  cout << num << endl;
+  return lo;
+}
+```
+
+**分析：**
+
+1. 二分法（二分范围查找），由于左上和右下的两个数字就是矩阵的范围，取出中间数mid之后，逐行遍历元素，二分法查找满足k的数字
+2. lo的值即结果
+
+## 解法 3
+
+```c++
+int kthSmallest(vector<vector<int>>& matrix, int k) {
+  priority_queue<int> heap;
+  for (int i = 0; i < matrix.size(); i++)
+  {
+      for (int j = 0; j < matrix[0].size(); j++)
+      {
+          if (heap.size() >= k)
+          {
+              if (matrix[i][j] < heap.top())
+              {
+                  heap.push(matrix[i][j]);
+                  heap.pop();
+              }
+          }
+          else
+          {
+              heap.push(matrix[i][j]);
+          }
+      }
+  }
+  return heap.top();
+}
+```
+
+**分析：**
+
+1. 优先队列priority_queue，当队列元素超过k个，如果当前元素比队列首元素小，插入当前元素后pop掉最大的元素
+
+## 解法 4
+堆解法（待补充）
+
+**解题参考：**
+[LeetCode](https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/discuss/85173) / [力扣](https://leetcode-cn.com/problems/kth-smallest-element-in-a-sorted-matrix/discuss/85173)
